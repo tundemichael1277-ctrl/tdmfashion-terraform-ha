@@ -1,7 +1,7 @@
 resource "aws_security_group" "tdmfashion_ha_sg" {
   name        = "tdmfashion-ha-sg"
   description = "http and ssh access"
-  vpc_id      = "vpc-06d940850c06f1ea6"
+  vpc_id      = var.vpc_id
 }
 
 resource "aws_security_group_rule" "ingress_ssh" {

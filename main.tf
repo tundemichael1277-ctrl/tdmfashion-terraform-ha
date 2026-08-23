@@ -1,13 +1,14 @@
 resource "aws_launch_template" "tdmfashion_ha_lt" {
   name_prefix   = "tdmfashion-app-"
   description   = "Launch template for application servers"
-  image_id      = "ami-011c04cb040289c2a"
-  instance_type = "t3.micro"
-  key_name      = "mine"
+  image_id      = var.ami
+  instance_type = var.instance_type
+  key_name      = var.key_name
+  user_data     = filebase64("userdata.sh")
 
-  #   iam_instance_profile {
-  #     name = "EC2-SSM-Role"
-  #   }
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_profile.id
+  }
 
   # Configure Network Settings
   network_interfaces {
@@ -24,7 +25,7 @@ resource "aws_autoscaling_group" "tdmfashion_ha_asg" {
   min_size            = 3
   max_size            = 6
   desired_capacity    = 3
-  vpc_zone_identifier = ["subnet-0786e56b84ef0b03f", "subnet-02b27a6ac45ce1437", "subnet-0fef3d105e522253a"]
+  vpc_zone_identifier = var.subnet_ids
   launch_template {
     id      = aws_launch_template.tdmfashion_ha_lt.id
     version = "$Latest"
@@ -35,4 +36,10 @@ resource "aws_autoscaling_group" "tdmfashion_ha_asg" {
     propagate_at_launch = true
   }
 
+}
+
+# Attach the Target Group to the Auto Scaling Group
+resource "aws_autoscaling_attachment" "tdmfashion_asg_attachment" {
+  autoscaling_group_name = aws_autoscaling_group.tdmfashion_ha_asg.name
+  lb_target_group_arn    = aws_lb_target_group.tdmfashion_target_group.arn
 }
