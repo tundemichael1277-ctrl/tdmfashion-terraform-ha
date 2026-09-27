@@ -44,3 +44,17 @@ resource "aws_lb_listener" "http" {
     target_group_arn = aws_lb_target_group.tdmfashion_target_group.arn
   }
 }
+
+#create listener on port 443 with forward action
+resource "aws_lb_listener" "tdmfashion_alb_listener" {
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tdmfashion_target_group.arn
+  }
+  load_balancer_arn = aws_lb.tdmfashion_alb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy = "ELBSecurityPolicy-2016-08"
+  certificate_arn = aws_acm_certificate.tdmfashion_app_acm_cert.arn
+}
+

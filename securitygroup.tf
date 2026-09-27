@@ -26,6 +26,17 @@ resource "aws_security_group_rule" "ingress_http" {
 
 }
 
+resource "aws_security_group_rule" "ingress_https" {
+  type              = "ingress"
+  description       = "http"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.tdmfashion_ha_sg.id
+
+}
+
 
 resource "aws_security_group_rule" "egress_access" {
   type              = "egress"
